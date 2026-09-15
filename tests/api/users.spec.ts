@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Cambia el puerto si tu backend corre en otro (ej: 3000, 4000, 8000)
+const API_BASE_URL = process.env.API_URL || 'http://localhost:3000';
+
 test.describe('Users API - Security & Registration Contracts', () => {
 
   const uniqueSuffix = Date.now();
@@ -9,7 +12,7 @@ test.describe('Users API - Security & Registration Contracts', () => {
   };
 
   test('POST /users should register a user and NEVER expose password_hash', async ({ request }) => {
-    const response = await request.post('/users', {
+    const response = await request.post(`${API_BASE_URL}/users`, {
       data: testUser,
     });
 
@@ -26,7 +29,7 @@ test.describe('Users API - Security & Registration Contracts', () => {
   });
 
   test('POST /users should reject duplicate email registration', async ({ request }) => {
-    const response = await request.post('/users', {
+    const response = await request.post(`${API_BASE_URL}/users`, {
       data: testUser,
     });
 

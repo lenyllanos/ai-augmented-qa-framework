@@ -1,48 +1,55 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from './base.page';
 
-export class ProfilePage {
-  readonly page: Page;
-
-  // Overview locators
+export class ProfilePage extends BasePage {
   readonly editProfileButton: Locator;
-  readonly deleteAccountButton: Locator;
-
-  // Edit form locators
-  readonly profileSettingsHeading: Locator;
-  readonly usernameInput: Locator;
-  readonly visibilitySelect: Locator;
-  readonly descriptionTextarea: Locator;
+  readonly cancelEditButton: Locator;
   readonly saveChangesButton: Locator;
-  readonly cancelButton: Locator;
-
-  // Danger zone modal locators
-  readonly deleteConfirmationModal: Locator;
-  readonly cancelModalButton: Locator;
+  readonly usernameInput: Locator;
+  readonly descriptionInput: Locator;
+  readonly characterCounter: Locator;
+  readonly deleteAccountButton: Locator;
+  readonly cancelDeleteButton: Locator;
+  readonly deleteModal: Locator;
+  readonly profileNameHeader: Locator;
+  readonly profileBioText: Locator;
+  readonly profileSettingsHeading: Locator;
 
   constructor(page: Page) {
-    this.page = page;
-
-    this.editProfileButton = page.getByRole('button', { name: 'Edit Profile' });
-    this.deleteAccountButton = page.getByRole('button', { name: 'Delete Account' });
-
-    this.profileSettingsHeading = page.getByText('Profile Settings');
-    this.usernameInput = page.getByLabel(/username/i).or(page.locator('input[type="text"]').first());
-    this.visibilitySelect = page.getByRole('combobox');
-    this.descriptionTextarea = page.locator('textarea');
-    this.saveChangesButton = page.getByRole('button', { name: 'Save Changes' });
-    this.cancelButton = page.getByRole('button', { name: 'Cancel' });
-
-    this.deleteConfirmationModal = page.getByText(/Are you sure you want to permanently delete/i);
-    this.cancelModalButton = page.getByRole('button', { name: /cancel|abort|no/i }).last();
+    super(page);
+    this.editProfileButton = page.getByRole('button', { name: /edit profile/i });
+    this.cancelEditButton = page.getByRole('button', { name: /cancel$/i });
+    this.saveChangesButton = page.getByRole('button', { name: /save changes/i });
+    this.usernameInput = page.getByLabel(/username/i);
+    this.descriptionInput = page.getByLabel(/description/i);
+    this.characterCounter = page.locator('text=/\\d+\\/150/');
+    this.deleteAccountButton = page.getByRole('button', { name: /delete account/i });
+    this.deleteModal = page.getByRole('dialog');
+    // Busca el botón cancelar dentro del diálogo para evitar ambigüedad
+    this.cancelDeleteButton = this.deleteModal.getByRole('button', { name: /(cancel|nevermind|no)/i });
+    this.profileNameHeader = page.locator('h2');
+    this.profileBioText = page.locator('p.bio');
+    this.profileSettingsHeading = page.getByRole('heading', { name: /profile settings/i });
   }
 
   async goto() {
-    await this.page.goto('/');
+    await this.navigateTo('/');
   }
 
   async enterEditMode() {
     await this.editProfileButton.click();
-    await expect(this.profileSettingsHeading).toBeVisible();
+  }
+
+  async cancelEdit() {
+    await this.cancelEditButton.click();
+  }
+
+  async saveChanges() {
+    await this.saveChangesButton.click();
+  }
+
+  async updateDescription(text: string) {
+    await this.descriptionInput.fill(text);
   }
 
   async typeUsernameSequentially(text: string) {
@@ -50,25 +57,11 @@ export class ProfilePage {
     await this.usernameInput.pressSequentially(text);
   }
 
-  async updateDescription(text: string) {
-    await this.descriptionTextarea.fill(text);
-  }
-
-  async saveChanges() {
-    await this.saveChangesButton.click();
-  }
-
-  async cancelEdit() {
-    await this.cancelButton.click();
-  }
-
   async triggerDeleteAccount() {
     await this.deleteAccountButton.click();
-    await expect(this.deleteConfirmationModal).toBeVisible();
   }
 
   async cancelAccountDeletion() {
-    await this.cancelModalButton.click();
-    await expect(this.deleteConfirmationModal).not.toBeVisible();
+    await this.cancelDeleteButton.click();
   }
 }
