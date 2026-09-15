@@ -1,0 +1,16 @@
+{
+  "user": {
+    "handle": "@lennox_92",
+    "verifiedBadge": "Neighborhood verified",
+    "defaultBio": "Community volunteer and local gardener"
+  },
+  "validations": {
+    "shortUsername": "abc",
+    "specialCharsUsername": "user@name!#$",
+    "expectedCleanUsername": "username",
+    "spacedUsername": "user name",
+    "longUsername": "abcdefghijklmnopq",
+    "maxUsernameLength": 15
+  },
+  "sampleBio": "Updated bio via automated POM test"
+}
